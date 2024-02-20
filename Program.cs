@@ -1,11 +1,17 @@
-﻿
+﻿using MailKit;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1;
 using System;
+using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
+using Telegram.Bot.Args;
+using Telegram.Bot.Requests;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using WethaBot.Models;
 
 namespace WeatherBot
@@ -26,14 +32,10 @@ namespace WeatherBot
         }
 
 
-         public static async Task Update(ITelegramBotClient botClient, Update update, CancellationToken token)
-         {
+        async public static Task Update(ITelegramBotClient botClient, Update update, CancellationToken token)
+        {
             var message = update.Message;
-            if (message.Text == "/start")
-            {
-                await botClient.SendTextMessageAsync(message.Chat.Id, "Введите /weather , чтобы узнать погоду:");
-            }
-            if (message != null && message.Text != null)
+            if (message.Text != null)
             {
                 Console.WriteLine(message.Text);
                 
@@ -43,19 +45,13 @@ namespace WeatherBot
                     _lastCommand = "/weather";
                     
                 }
-
-                if (_lastCommand == "/weather" && message.Text!= "/weather")
+                if (_lastCommand == "/weather")
                 {
                     _lastCommand = string.Empty;
                     string city = message.Text;
                     var weatherResult = GetWeather(city);
-                    if (weatherResult != null)
-                    {
-                        Console.WriteLine(weatherResult);
-                        await botClient.SendTextMessageAsync(message.Chat.Id, weatherResult); 
-                    }
-                    else
-                        await botClient.SendTextMessageAsync(message.Chat.Id, "retype");
+                    Console.WriteLine(weatherResult);
+                    await botClient.SendTextMessageAsync(message.Chat.Id, weatherResult);
                 }
             }
         }
@@ -66,35 +62,14 @@ namespace WeatherBot
 
         public static string GetWeather(string cityName)
         {
-            try
-            {
-                string apiUrl = $"https://api.openweathermap.org/data/2.5/weather?q={cityName}&units=metric&appid=c14343f016c933c8bdc7491701478f9c";
+            string apiUrl = $"https://api.openweathermap.org/data/2.5/weather?q={cityName}&units=metric&appid=YOUR_API_KEY";
 
-                var http = new HttpClient();
-                var response = http.GetStringAsync(apiUrl).Result;
+            var http = new HttpClient();
+            var response = http.GetStringAsync(apiUrl).Result;
 
-                if (response.Contains("404 Not Found"))
-                {
-                    return "Город не найден";
-                }
-
-                СityWeather cityWeather = JsonConvert.DeserializeObject<СityWeather>(response);
-                return $"Температура в {cityWeather.Name}: {cityWeather.Main.Temp}°C";
-            }
-            catch (HttpRequestException)
-            {
-                return "Failed to connect to weather service";
-            }
-            catch (JsonException)
-            {
-                return "Failed to deserialize weather data";
-            }
-            catch (Exception ex)
-            {
-                return $"Такого города не существует, введите реальный: {ex.Message}";
-            }
+            СityWeather cityWeather = JsonConvert.DeserializeObject<СityWeather>(response);
+            return $"Temperature in {cityWeather.Name}: {cityWeather.Main.Temp}°C";
         }
-    }
 
-    
+    }
 }
