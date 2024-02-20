@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace WethaBot
+namespace WethaBot.Models
 {
-    public class WeatherResp
+    public class СityWeather
     {
 
         public Temperature Main { get; set; }

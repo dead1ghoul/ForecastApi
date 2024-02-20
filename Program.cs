@@ -1,5 +1,6 @@
 ﻿using MailKit;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1;
 using System;
 using System.IO;
 using System.Net;
@@ -11,14 +12,14 @@ using Telegram.Bot.Args;
 using Telegram.Bot.Requests;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using WethaBot;
+using WethaBot.Models;
 
 namespace WeatherBot
 {
     class Program
     {
         private static TelegramBotClient botClient;
-        public static string response;
+        static string _lastCommand;
         static void Main(string[] args)
         {
             var client = new TelegramBotClient("6499335199:AAGDmg7pg2VCwdK2vQZ335k4hAvBmfzMsoM");
@@ -37,11 +38,20 @@ namespace WeatherBot
             if (message.Text != null)
             {
                 Console.WriteLine(message.Text);
-                string city = message.Text;
+                
                 if (message.Text.ToLower().Contains("/weather"))
                 {
                     await botClient.SendTextMessageAsync(message.Chat.Id, "Введите название города:");
+                    _lastCommand = "/weather";
                     
+                }
+                if (_lastCommand == "/weather")
+                {
+                    _lastCommand = string.Empty;
+                    string city = message.Text;
+                    var weatherResult = GetWeather(city);
+                    Console.WriteLine(weatherResult);
+                    await botClient.SendTextMessageAsync(message.Chat.Id, weatherResult);
                 }
             }
         }
@@ -57,8 +67,8 @@ namespace WeatherBot
             var http = new HttpClient();
             var response = http.GetStringAsync(apiUrl).Result;
 
-            WeatherResp weatherResp = JsonConvert.DeserializeObject<WeatherResp>(response);
-            return $"Temperature in {weatherResp.Name}: {weatherResp.Main.Temp}°C";
+            СityWeather cityWeather = JsonConvert.DeserializeObject<СityWeather>(response);
+            return $"Temperature in {cityWeather.Name}: {cityWeather.Main.Temp}°C";
         }
 
     }

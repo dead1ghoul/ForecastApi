@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace WethaBot
+namespace WethaBot.Models
 {
     public class Temperature
     {
