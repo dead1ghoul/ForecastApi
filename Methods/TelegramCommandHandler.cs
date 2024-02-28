@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
@@ -9,9 +6,11 @@ using Telegram.Bot;
 
 namespace WethaBot.Methods
 {
+
     internal class TelegramCommandHandler
     {
         private static string _lastCommand;
+
         public static async Task Update(ITelegramBotClient botClient, Update update, CancellationToken token)
         {
             var message = update.Message;
@@ -24,11 +23,20 @@ namespace WethaBot.Methods
                     await botClient.SendTextMessageAsync(message.Chat.Id, "Введите /weather , чтобы узнать погоду:");
                 }
 
+                if (message.Text.ToLower().Contains("/ping"))
+                {
+                    await botClient.SendTextMessageAsync(message.Chat.Id, "pong");
+                }
+
+                if(message.Text.StartsWith("/") && message.Text != "/ping" && message.Text != "/weather" && message.Text != "/start")
+                {
+                    await botClient.SendTextMessageAsync(message.Chat.Id, "Вы ввели не существующую команду");
+                }
+
                 if (message.Text.ToLower().Contains("/weather"))
                 {
                     await botClient.SendTextMessageAsync(message.Chat.Id, "Введите название города:");
                     _lastCommand = "/weather";
-
                 }
 
                 if (_lastCommand == "/weather" && message.Text != "/weather")

@@ -1,11 +1,5 @@
-﻿
-using Newtonsoft.Json;
-using System;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using WethaBot.Methods;
 
 namespace WeathaBot
